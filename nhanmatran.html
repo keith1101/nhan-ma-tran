@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nhân Ma Trận Hình Chữ Nhật</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+      --card-bg: #ffffffdd;
+      --accent: #4e54c8;
+      --accent-hover: #565fd1;
+      --text-primary: #333;
+      --text-secondary: #555;
+      --border-radius: 12px;
+      --shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    .controls label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+    .controls input {
+      width: 60px;
+      padding: 8px;
+      border: 2px solid #ddd;
+      border-radius: var(--border-radius);
+      text-align: center;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    .controls input:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    .btn {
+      grid-column: 1/-1;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+    .matrix-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    .matrix {
+      background: #fff;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+    .matrix h3 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .matrix-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .matrix-grid input {
+      width: 60px;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: var(--border-radius);
+      text-align: center;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    .result {
+      background: #fff;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+    .result h3 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .result-grid {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Nhân Ma Trận Hình Chữ Nhật</h1>
+    <div class="controls">
+      <label>Số hàng A:<input id="rowsA" type="number" min="1" value="2"></label>
+      <label>Số cột A / Số hàng B:<input id="colsA" type="number" min="1" value="3"></label>
+      <label>Số cột B:<input id="colsB" type="number" min="1" value="2"></label>
+      <button class="btn" onclick="setupMatrices()">Tạo Ma Trận</button>
+    </div>
+    <div class="matrix-container">
+      <div class="matrix">
+        <h3>Ma trận A</h3>
+        <div id="matrixA" class="matrix-grid"></div>
+      </div>
+      <div class="matrix">
+        <h3>Ma trận B</h3>
+        <div id="matrixB" class="matrix-grid"></div>
+      </div>
+    </div>
+    <button class="btn" onclick="multiplyMatrices()">Nhân Ma Trận</button>
+    <div class="result">
+      <h3>Kết quả</h3>
+      <div id="resultMatrix" class="result-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    function setupMatrices() {
+      const rA = +rowsA.value;
+      const cA = +colsA.value;
+      const cB = +colsB.value;
+      createMatrix('matrixA', rA, cA);
+      createMatrix('matrixB', cA, cB);
+      resultMatrix.innerHTML = '';
+    }
+
+    function createMatrix(id, rows, cols) {
+      const container = document.getElementById(id);
+      container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      container.innerHTML = '';
+      for (let i=0;i<rows;i++) for(let j=0;j<cols;j++) {
+        const inp=document.createElement('input');
+        inp.type='number'; inp.value=0;
+        inp.dataset.row=i; inp.dataset.col=j;
+        container.appendChild(inp);
+      }
+    }
+
+    function getMatrix(id, r, c) {
+      const arr=[];
+      const cont=document.getElementById(id);
+      for(let i=0;i<r;i++){
+        const row=[];
+        for(let j=0;j<c;j++){
+          row.push(+cont.querySelector(`input[data-row='${i}'][data-col='${j}']`).value||0);
+        }
+        arr.push(row);
+      }
+      return arr;
+    }
+
+    function multiplyMatrices() {
+      const rA=+rowsA.value, cA=+colsA.value, cB=+colsB.value;
+      const A=getMatrix('matrixA',rA,cA);
+      const B=getMatrix('matrixB',cA,cB);
+      if(cA!==B.length){ alert('Số cột A phải bằng số hàng B!'); return; }
+      const res=[];
+      for(let i=0;i<rA;i++){
+        for(let j=0;j<cB;j++){
+          let sum=0;
+          for(let k=0;k<cA;k++) sum+=A[i][k]*B[k][j];
+          res.push(sum);
+        }
+      }
+      const cont=document.getElementById('resultMatrix');
+      cont.style.gridTemplateColumns=`repeat(${cB},1fr)`;
+      cont.innerHTML='';
+      res.forEach(v=>{
+        const o=document.createElement('input');
+        o.type='text'; o.value=v; o.readOnly=true;
+        cont.appendChild(o);
+      });
+    }
+
+    setupMatrices();
+  </script>
+</body>
+</html>
